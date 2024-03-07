@@ -1,12 +1,13 @@
+# [Task Manager Service]()
 
-# [task manager]()
+<!-- ### Install [volta.sh](https://volta.sh/) -->
 
-
-
-### Install [volta.sh](https://volta.sh/)
-
-```sh
+<!-- ```sh
 curl https://get.volta.sh | bash
+``` -->
+
+```
+prisma migrate dev --schema=./schema.prisma
 ```
 
 ---
