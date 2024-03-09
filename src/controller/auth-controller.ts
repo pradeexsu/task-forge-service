@@ -1,124 +1,67 @@
-import jwt from 'jsonwebtoken'
-import { v4 as uuid } from 'uuid'
-import { NextFunction, Request, Response } from 'express'
-import { prismaClient } from '../prisma-client.js'
-import { genrateJwtToken } from '../utils/token-genrator.js'
+import { Request, Response } from 'express'
+import { Builder } from 'builder-pattern'
 
-export const authenticate = async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-) => {
-    const token = req.header('token')
-    if (!token) {
-        res.json({ succes: false, message: 'Access denied' })
-        return
-    }
-    try {
-        const { email, id } = jwt.verify(
-            token,
-            process.env.TOKEN_SECRET,
-        ) as jwt.JwtPayload
+import { ApiResponse, AuthResponse } from '@type/typings.js'
+import ErrorMessages from '@constants/error-message.js'
+import SuccessMessages from '@constants/success-message.js'
 
-        const { token: accessToken } = await prismaClient.user.findUnique({
-            where: {
-                id,
-            },
-            select: {
-                token: true,
-            },
-        })
-        if (accessToken === token) {
-            res.setHeader('userId', id)
-            console.log(`${email} authenticated`)
-            next()
-        } else {
-            throw new Error()
-        }
-    } catch (err) {
-        res.status(401)
-        res.json({ succes: false, message: err.message || 'Invalid token' })
-    }
-}
+import AuthService from '@services/auth-service.js'
+import { TOKEN_HEADER_KEY } from '@constants/const.js'
 
-export const unAuthenticate = async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-) => {
-    next()
-}
-
-export const register = async (req: Request, res: Response) => {
-    const { username, email, password } = req.body
-
-    if (!username || !email || !password) {
-        res.json({
-            succes: false,
-            message: 'username, email, and password required',
-        })
-        return
-    }
-    const userExists = await prismaClient.user.findUnique({
-        where: {
-            email,
-        },
-    })
-    if (userExists) {
-        res.json({ succes: false, message: 'User already exists' })
-        return false
-    }
-
-    const id = uuid()
-    const accessToken = genrateJwtToken({ email, username, id })
-    await prismaClient.user.create({
-        data: {
-            id,
-            email,
-            username,
-            password,
-            token: accessToken,
-        },
-    })
-    res.setHeader('token', accessToken)
-    console.log(`${email} registered successfully`)
-    res.json({
-        succes: true,
-        message: 'User registered successfully',
-        user: { email, username },
-    })
-}
-
-export const login = async (req: Request, res: Response) => {
-    const { email, password } = req.body
-    const user = await prismaClient.user.findUnique({
-        where: {
-            email,
-        },
-    })
-    if (user?.id && user?.password === password) {
-        const accessToken = genrateJwtToken({
-            email,
-            id: user?.id,
-            username: user?.username,
-        })
-
-        await prismaClient.user.update({
-            where: {
+class AuthController {
+    public async register(req: Request, res: Response) {
+        const { username, email, password } = req.body
+        try {
+            const { accessToken, user } = await AuthService.registerUser({
+                username,
                 email,
-            },
-            data: {
-                token: accessToken,
-            },
-        })
-        res.setHeader('token', accessToken)
-        console.log(`${email} login successfully`)
-        res.json({
-            succes: true,
-            message: 'User logged in successfully',
-            user: { email, username: user?.username },
-        })
-    } else {
-        res.json({ succes: false, message: 'Invalid email or password' })
+                password,
+            })
+            res.setHeader(TOKEN_HEADER_KEY, accessToken)
+            console.log(`${email} registered successfully`)
+            res.json(
+                Builder<ApiResponse<AuthResponse>>()
+                    .message(SuccessMessages.UserSignedUpSuccessfully)
+                    .success(true)
+                    .data(user)
+                    .build(),
+            )
+        } catch (error) {
+            res.json(
+                Builder<ApiResponse<never>>()
+                    .message(error.message || ErrorMessages.SignUpFailed)
+                    .success(false)
+                    .build(),
+            )
+        }
+    }
+
+    public async login(req: Request, res: Response) {
+        const { email, password } = req.body
+        console.log(AuthService.loginUser)
+        try {
+            const { accessToken, user } = await AuthService.loginUser({
+                email,
+                password,
+            })
+            res.setHeader(TOKEN_HEADER_KEY, accessToken)
+            console.log(`${email} login successfully`)
+            res.json(
+                Builder<ApiResponse<AuthResponse>>()
+                    .message(SuccessMessages.UserLoggedInSuccessfully)
+                    .success(true)
+                    .data(user)
+                    .build(),
+            )
+        } catch (error) {
+            res.json(
+                Builder<ApiResponse<never>>()
+                    .message(error.message || ErrorMessages.LogInFailed)
+                    .success(false)
+                    .build(),
+            )
+        }
     }
 }
+
+export default new AuthController()
