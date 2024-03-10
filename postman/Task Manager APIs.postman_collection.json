@@ -1,0 +1,266 @@
+{
+    "info": {
+        "_postman_id": "67973288-53fd-470f-8a1b-e9b2774a475b",
+        "name": "Task Manager APIs",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+        "_exporter_id": "28105131"
+    },
+    "item": [
+        {
+            "name": "Register",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "",
+                            "const tokenHeaderName = 'x-auth-token';",
+                            "",
+                            "var responseHeaders = pm.response.headers;",
+                            "if (responseHeaders.has(tokenHeaderName)) {",
+                            "    var token = responseHeaders.get(tokenHeaderName);",
+                            "    pm.collectionVariables.set('authToken', token);",
+                            "    console.log('Token extracted:', token);",
+                            "} else {",
+                            "    console.log('Token header not found in response.');",
+                            "}",
+                            "",
+                            ""
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "x-request-id",
+                        "value": "test-123",
+                        "type": "text"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"email\": \"pradeexsu@gamil\",\n    \"username\": \"Pradeep\",\n    \"password\": \"password\"\n}",
+                    "options": {
+                        "raw": {
+                            "language": "json"
+                        }
+                    }
+                },
+                "url": {
+                    "raw": "{{taskManagerLocalBaseUrl}}/auth/signup",
+                    "host": ["{{taskManagerLocalBaseUrl}}"],
+                    "path": ["auth", "signup"]
+                }
+            },
+            "response": []
+        },
+        {
+            "name": "Login",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "",
+                            "const tokenHeaderName = 'x-auth-token';",
+                            "",
+                            "var responseHeaders = pm.response.headers;",
+                            "if (responseHeaders.has(tokenHeaderName)) {",
+                            "    var token = responseHeaders.get(tokenHeaderName);",
+                            "    pm.globals.set('authToken', token);",
+                            "    console.log('Token extracted:', token);",
+                            "} else {",
+                            "    console.log('Token header not found in response.');",
+                            "}",
+                            "",
+                            ""
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "x-request-id",
+                        "value": "test-123",
+                        "type": "text"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"email\": \"pradee@gamil\",\n    \"password\": \"demo1\"\n}",
+                    "options": {
+                        "raw": {
+                            "language": "json"
+                        }
+                    }
+                },
+                "url": {
+                    "raw": "{{taskManagerLocalBaseUrl}}/auth/login",
+                    "host": ["{{taskManagerLocalBaseUrl}}"],
+                    "path": ["auth", "login"]
+                }
+            },
+            "response": []
+        },
+        {
+            "name": "get tasks",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [""],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "x-auth-token",
+                        "value": "{{authToken}}",
+                        "type": "text"
+                    },
+                    {
+                        "key": "x-request-id",
+                        "value": "test-123",
+                        "type": "text"
+                    }
+                ],
+                "url": {
+                    "raw": "{{taskManagerLocalBaseUrl}}/api/tasks",
+                    "host": ["{{taskManagerLocalBaseUrl}}"],
+                    "path": ["api", "tasks"]
+                }
+            },
+            "response": []
+        },
+        {
+            "name": "create tesk",
+            "event": [
+                {
+                    "listen": "prerequest",
+                    "script": {
+                        "exec": [""],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "x-auth-token",
+                        "value": "{{authToken}}",
+                        "type": "text"
+                    },
+                    {
+                        "key": "x-request-id",
+                        "value": "CREATE-123",
+                        "type": "text"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"title\": \"mytask x\",\n    \"description\":\"PRADEEP CREATED NEW TASK\",\n    \"status\": \"OPEN\"\n}",
+                    "options": {
+                        "raw": {
+                            "language": "json"
+                        }
+                    }
+                },
+                "url": {
+                    "raw": "{{taskManagerLocalBaseUrl}}/api/tasks",
+                    "host": ["{{taskManagerLocalBaseUrl}}"],
+                    "path": ["api", "tasks"]
+                }
+            },
+            "response": []
+        },
+        {
+            "name": "update tesk",
+            "request": {
+                "method": "PATCH",
+                "header": [
+                    {
+                        "key": "x-auth-token",
+                        "value": "{{authToken}}",
+                        "type": "text"
+                    },
+                    {
+                        "key": "x-request-id",
+                        "value": "test-123",
+                        "type": "text"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"title\": \"TASK UPDATED\",\n    \"description\":\"DESC\",\n    \"status\": \"OPEN\"\n}",
+                    "options": {
+                        "raw": {
+                            "language": "json"
+                        }
+                    }
+                },
+                "url": {
+                    "raw": "{{taskManagerLocalBaseUrl}}/api/tasks/4b5e10e8-b502-4cfc-b1cf-a74ba7afcac2",
+                    "host": ["{{taskManagerLocalBaseUrl}}"],
+                    "path": [
+                        "api",
+                        "tasks",
+                        "4b5e10e8-b502-4cfc-b1cf-a74ba7afcac2"
+                    ]
+                }
+            },
+            "response": []
+        },
+        {
+            "name": "delete tesk",
+            "request": {
+                "method": "DELETE",
+                "header": [
+                    {
+                        "key": "x-auth-token",
+                        "value": "{{authToken}}",
+                        "type": "text"
+                    },
+                    {
+                        "key": "x-request-id",
+                        "value": "test-123",
+                        "type": "text"
+                    }
+                ],
+                "url": {
+                    "raw": "{{taskManagerLocalBaseUrl}}/api/tasks/929ae64f-7863-4e0b-8fc6-6280ced53dad",
+                    "host": ["{{taskManagerLocalBaseUrl}}"],
+                    "path": [
+                        "api",
+                        "tasks",
+                        "929ae64f-7863-4e0b-8fc6-6280ced53dad"
+                    ]
+                }
+            },
+            "response": []
+        }
+    ],
+    "variable": [
+        {
+            "key": "taskManagerBaseUrl",
+            "value": "https://task-forge-service.onrender.com"
+        },
+        {
+            "key": "taskManagerLocalBaseUrl",
+            "value": "http://localhost:3001"
+        },
+        {
+            "key": "authToken",
+            "value": ""
+        }
+    ]
+}
