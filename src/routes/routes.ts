@@ -14,7 +14,7 @@ apiRouts
     .delete('/tasks/:taskId', TaskController.deleteTask)
 
 authRouts
-    .use(AuthInterceptor.unAuthenticate)
+    .use(AuthInterceptor.attachRequestId)
     .post('/login', AuthController.login)
     .post('/signup', AuthController.register)
     .get('/ping', () => 'pong')

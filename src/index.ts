@@ -1,7 +1,7 @@
 import express from 'express'
 import cors from 'cors'
 import { configDotenv } from 'dotenv'
-import { apiRouts, authRouts } from './routes/routes.js'
+import { apiRouts, authRouts } from '@routes/routes.js'
 import { logger } from '@utils/logger-config.js'
 
 configDotenv()
@@ -13,5 +13,7 @@ app.use(express.json())
     .use('/auth', authRouts)
     .use('/api', apiRouts)
     .listen(port, () => {
-        logger.info({ message: `Task manager up and running at port: ${port}` })
+        logger.info({
+            message: `Task manager service up and running on port: ${port}`,
+        })
     })

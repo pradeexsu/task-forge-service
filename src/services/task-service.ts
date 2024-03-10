@@ -1,147 +1,121 @@
 import { Task } from '@prisma/client'
 import { logger } from '@utils/logger-config.js'
-import prismaClient from '@prisma-client.js'
+import taskRepository from '@repository/task-repository.js'
+import ErrorMessages from '@constants/error-message.js'
 
 class TaskService {
-    async getTasks(userId: string): Promise<Partial<Task>[]> {
+    async getTasks(
+        userId: string,
+        requestId: string,
+    ): Promise<Partial<Task>[]> {
         try {
-            logger.info({
-                message: 'Retrieving tasks for user',
-                userId: userId,
-            })
-
-            const tasks = await prismaClient.task.findMany({
-                where: {
-                    userId,
-                },
-                select: {
-                    id: true,
-                    title: true,
-                    description: true,
-                    status: true,
-                },
-            })
-            logger.info({
-                message: 'Retrieved tasks for user successfully',
-                userId: userId,
-                tasks: tasks,
-            })
-            return tasks
+            return await taskRepository.getTasks(userId, requestId)
         } catch (error) {
             logger.error({
                 message: 'Error retrieving tasks for user',
-                userId: userId,
-                error: error,
-            })
-        }
-    }
-
-    async saveNewTask(userId: string, task: Partial<Task>) {
-        try {
-            logger.info({
-                message: 'Saving new task',
-                userId: userId,
-                task: task,
-            })
-
-            const newTask = await prismaClient.task.create({
-                data: {
-                    userId,
-                    title: task.title,
-                    description: task.description,
-                    status: task.status,
-                },
-            })
-            logger.info({
-                message: 'Saved new task successfully',
-                userId: userId,
-                task: newTask,
-            })
-            return newTask
-        } catch (error) {
-            logger.error({
-                message: 'Error saving new task',
-                userId: userId,
-                error: error,
-            })
-        }
-    }
-
-    async updateTask(task: Partial<Task>): Promise<Task> {
-        try {
-            const { id, userId } = task
-            logger.info({
-                message: 'Updating task',
-                userId: userId,
-                taskId: id,
-                task: task,
-            })
-
-            const taskToUpdate = await prismaClient.task?.findUnique({
-                where: {
-                    id,
-                },
-            })
-            logger.info({
-                message: 'Found task to update',
-                userId: userId,
-                taskId: id,
-                task: taskToUpdate,
-            })
-            if (taskToUpdate?.userId != userId)
-                throw new Error('Task not found')
-            logger.info({
-                message: 'Task not found',
-                userId: userId,
-                taskId: id,
-            })
-            taskToUpdate['status'] = task['status']
-            taskToUpdate['title'] = task['title']
-            taskToUpdate['description'] = task['description']
-            const updatedTask = await prismaClient.task.update({
-                where: {
-                    id: task.id,
-                },
-                data: taskToUpdate,
-            })
-            logger.info({
-                message: 'Updated task successfully',
-                userId: userId,
-                taskId: id,
-                task: updatedTask,
-            })
-            return updatedTask
-        } catch (error) {
-            logger.error({
-                message: 'Error updating task',
-                userId: task.userId,
-                taskId: task.id,
-                error: error,
+                requestId,
+                error,
             })
             throw error
         }
     }
 
-    async deleteTaskById(taskId: string): Promise<void> {
+    async createNewTask(
+        userId: string,
+        task: Partial<Task>,
+        requestId: string,
+    ) {
         try {
             logger.info({
-                message: 'Deleting task',
-                taskId: taskId,
+                message: 'Creating new task',
+                requestId,
+                userId,
             })
-
-            await prismaClient.task.delete({
-                where: {
-                    id: taskId,
+            const newTask = await taskRepository.createTask(
+                {
+                    ...task,
+                    userId,
                 },
-            })
+                requestId,
+            )
+            if (!newTask) {
+                throw new Error(ErrorMessages.InternalServerError)
+            }
             logger.info({
-                message: 'Deleted task successfully',
-                taskId: taskId,
+                message: 'Created new task successfully',
+                requestId,
             })
+            return newTask
         } catch (error) {
             logger.error({
-                message: 'Error deleting task',
-                taskId: taskId,
+                message: error.message || ErrorMessages,
+                requestId,
+                error,
+            })
+            throw error
+        }
+    }
+
+    async updateTask(task: Partial<Task>, requestId: string): Promise<Task> {
+        try {
+            const { id, userId } = task
+            logger.info({
+                message: 'Updating task...',
+                requestId,
+            })
+            if (!task.id || !task.title || !task.status) {
+                throw new Error(ErrorMessages.BadRequest)
+            }
+            const existingTask = await taskRepository.getTaskById(
+                id,
+                userId,
+                requestId,
+            )
+            if (!existingTask) {
+                throw new Error(ErrorMessages.NotFound)
+            }
+            const updatedTask = await taskRepository.updateTask(
+                id,
+                task,
+                requestId,
+            )
+            if (!updatedTask) {
+                throw new Error(ErrorMessages.NotFound)
+            }
+            logger.info({
+                message: 'Updated task successfully',
+                requestId,
+            })
+            return updatedTask
+        } catch (error) {
+            logger.error({
+                message: error.message || 'Error updating task',
+                requestId,
+                error,
+            })
+            throw error
+        }
+    }
+
+    async deleteTaskById(
+        taskId: string,
+        userId: string,
+        requestId: string,
+    ): Promise<void> {
+        try {
+            const deleteCount = await taskRepository.deleteTask(
+                taskId,
+                userId,
+                requestId,
+            )
+            if (deleteCount == 0) {
+                throw new Error(ErrorMessages.NotFound)
+            }
+        } catch (error) {
+            logger.error({
+                message: error.message || 'Error deleting task',
+                requestId,
+                error,
             })
             throw error
         }

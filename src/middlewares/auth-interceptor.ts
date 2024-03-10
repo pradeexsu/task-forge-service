@@ -5,19 +5,29 @@ import ErrorMessages from '@constants/error-message.js'
 import { logger } from '@utils/logger-config.js'
 import AuthService from '@services/auth-service.js'
 import { ApiResponse } from '@type/typings.js'
-import { TOKEN_HEADER_KEY, USERID_HEADER_KEY } from '@constants/const.js'
+import { REQUESTID_HEADER_KEY, TOKEN_HEADER_KEY } from '@constants/const.js'
 
 class AuthInterceptor {
     public async authenticate(req: Request, res: Response, next: NextFunction) {
         const token = req.header(TOKEN_HEADER_KEY)
+        const requestId = req.header(REQUESTID_HEADER_KEY)
         try {
-            const id = await AuthService.authenticateUser(token)
-            res.setHeader(USERID_HEADER_KEY, id)
+            logger.info({
+                message: 'Authenticating user...',
+                requestId,
+                token,
+            })
+
+            const userId = await AuthService.authenticateUser(token, requestId)
+            req.query.requestId = requestId
+            req.query.userId = userId
+
             next()
         } catch (err) {
             logger.info({
                 message: 'Failed Authentication',
-                token: token,
+                requestId,
+                token,
             })
             res.status(401).json(
                 Builder<ApiResponse<never>>()
@@ -27,7 +37,13 @@ class AuthInterceptor {
             )
         }
     }
-    public async unAuthenticate(_: Request, __: Response, next: NextFunction) {
+    public async attachRequestId(
+        req: Request,
+        __: Response,
+        next: NextFunction,
+    ) {
+        const requestId = req.header(REQUESTID_HEADER_KEY)
+        req.query.requestId = requestId
         next()
     }
 }
