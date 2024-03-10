@@ -1,8 +1,8 @@
 import express from 'express'
 import cors from 'cors'
 import { configDotenv } from 'dotenv'
-import { apiRouts, authRouts } from '@routes/routes.js'
 import { logger } from '@utils/logger-config.js'
+import { apiRouts, authRouts } from '@routes/index.js'
 
 configDotenv()
 const port = process.env.PORT || 3001

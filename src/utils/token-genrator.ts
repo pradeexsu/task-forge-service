@@ -1,4 +1,4 @@
-import { AuthRequest, AuthResponse } from '@type/typings.js'
+import { AuthResponse } from '@type/typings.js'
 import jwt from 'jsonwebtoken'
 import { logger } from '@utils/logger-config.js'
 
