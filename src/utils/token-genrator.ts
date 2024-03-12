@@ -1,6 +1,6 @@
-import { AuthResponse } from '@type/typings.js'
 import jwt from 'jsonwebtoken'
 import { logger } from '@utils/logger-config.js'
+import { AuthResponse } from '@type/typings.js'
 
 /**
  * The function `generateJwtToken` generates a JWT token with user data and a 1-day expiration.

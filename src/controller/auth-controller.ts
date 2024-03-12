@@ -6,7 +6,10 @@ import ErrorMessages from '@constants/error-message.js'
 import SuccessMessages from '@constants/success-message.js'
 
 import authService from '@services/auth-service.js'
-import { TOKEN_HEADER_KEY } from '@constants/const.js'
+import {
+    ACCESS_CONTROL_ALLOW_HEADERS,
+    TOKEN_HEADER_KEY,
+} from '@constants/const.js'
 import { logger } from '@utils/logger-config.js'
 
 class AuthController {
@@ -68,6 +71,8 @@ class AuthController {
                 requestId,
             )
             response.setHeader(TOKEN_HEADER_KEY, accessToken)
+            response.setHeader(ACCESS_CONTROL_ALLOW_HEADERS, TOKEN_HEADER_KEY)
+
             logger.info({
                 message: `${email} logged in successfully`,
                 requestId,

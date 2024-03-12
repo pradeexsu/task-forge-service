@@ -11,13 +11,14 @@ import {
     TaskDto,
     TaskListData,
 } from '@type/typings.js'
+import { STATUS_VALUES } from '@constants/const.js'
 
 class TaskController {
     public async createTask(request: Request, response: Response) {
         const { userId, requestId } = request.query as RequestQuery
-        const { title, description, status } = request.body
+        const { title, status } = request.body
         try {
-            if (!title || !description || !status) {
+            if (!title || !STATUS_VALUES.includes(status)) {
                 throw new Error(ErrorMessages.BadRequest)
             }
             const task = await taskService.createNewTask(
