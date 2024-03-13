@@ -30,6 +30,8 @@ class AuthController {
                 requestId,
             )
             response.setHeader(TOKEN_HEADER_KEY, accessToken)
+            response.setHeader(ACCESS_CONTROL_ALLOW_HEADERS, TOKEN_HEADER_KEY)
+
             logger.info({
                 message: `${email} registered successfully`,
                 requestId,
