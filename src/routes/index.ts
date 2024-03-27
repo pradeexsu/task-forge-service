@@ -12,6 +12,7 @@ apiRouts
     .post('/tasks', TaskController.createTask)
     .patch('/tasks/:taskId', TaskController.patchTask)
     .delete('/tasks/:taskId', TaskController.deleteTask)
+    .delete('/logout', AuthController.logout)
 
 authRouts
     .use(AuthInterceptor.attachRequestId)

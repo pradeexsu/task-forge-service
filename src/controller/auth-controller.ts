@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
 import { Builder } from 'builder-pattern'
 
-import { ApiResponse, AuthResponse } from '@type/typings.js'
+import { ApiResponse, AuthResponse, RequestQuery } from '@type/typings.js'
 import ErrorMessages from '@constants/error-message.js'
 import SuccessMessages from '@constants/success-message.js'
 
@@ -93,6 +93,25 @@ class AuthController {
             })
             const res = Builder<ApiResponse<never>>()
                 .message(error.message || ErrorMessages.LogInFailed)
+                .success(false)
+                .build()
+            response.json(res)
+        }
+    }
+
+    public async logout(request: Request, response: Response) {
+        const { userId, requestId } = request.query as RequestQuery
+        try {
+            await authService.logoutUser(userId, requestId)
+
+            const res = Builder<ApiResponse<unknown>>()
+                .data({ messsage: 'Logged out successfully' })
+                .success(true)
+                .build()
+            response.json(res)
+        } catch (error) {
+            const res = Builder<ApiResponse<never>>()
+                .message(error.message || ErrorMessages.InternalServerError)
                 .success(false)
                 .build()
             response.json(res)

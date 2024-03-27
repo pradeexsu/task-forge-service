@@ -51,6 +51,7 @@ class UserRepository {
             },
             select: {
                 token: true,
+                loggedIn: true,
             },
         })
         logger.debug({
@@ -92,6 +93,7 @@ class UserRepository {
             },
             data: {
                 token,
+                loggedIn: true,
             },
         })
         logger.debug({
@@ -99,6 +101,27 @@ class UserRepository {
             requestId,
             token,
         })
+    }
+
+    public async logoutUser(userId: string, requestId: string): Promise<User> {
+        logger.debug({
+            message: 'Updating user token...',
+            requestId,
+        })
+        const data = await prismaClient.user.update({
+            where: {
+                id: userId,
+            },
+            data: {
+                loggedIn: false,
+            },
+        })
+
+        logger.debug({
+            message: 'Updated logged out entry to db successfully!',
+            requestId,
+        })
+        return data
     }
 }
 

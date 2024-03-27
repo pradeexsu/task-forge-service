@@ -50,6 +50,7 @@ class AuthService {
             token,
             email,
             id,
+            loggedIn: true,
         }
         await userRepository.createUser(user, requestId)
         logger.info({
@@ -103,6 +104,24 @@ class AuthService {
                 id,
             },
         }
+    }
+
+    public async logoutUser(userId: string, requestId: string) {
+        logger.info({
+            message: 'Logging out user...',
+            requestId,
+            userId,
+        })
+
+        const data = await userRepository.logoutUser(userId, requestId)
+        if (null !== data || !data.loggedIn) {
+            throw new Error(ErrorMessages.UserNotFound)
+        }
+        logger.info({
+            message: 'User logged out successfully',
+            requestId,
+            userId,
+        })
     }
 }
 
