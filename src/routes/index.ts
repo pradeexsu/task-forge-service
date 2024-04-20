@@ -2,6 +2,7 @@ import { Router } from 'express'
 import AuthInterceptor from '@middlewares/auth-interceptor.js'
 import TaskController from '@controller/task-controller.js'
 import AuthController from '@controller/auth-controller.js'
+import PingController from '@controller/ping-controller.js'
 
 const apiRouts = Router()
 const authRouts = Router()
@@ -18,6 +19,6 @@ authRouts
     .use(AuthInterceptor.attachRequestId)
     .post('/login', AuthController.login)
     .post('/signup', AuthController.register)
-    .get('/ping', () => 'pong')
+    .get('/ping', PingController.ping)
 
 export { authRouts, apiRouts }

@@ -44,6 +44,7 @@ class AuthInterceptor {
     ) {
         const requestId = req.header(REQUESTID_HEADER_KEY)
         req.query.requestId = requestId
+        console.log('reviced a requestId :', requestId)
         next()
     }
 }

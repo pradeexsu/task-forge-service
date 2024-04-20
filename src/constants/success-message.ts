@@ -4,6 +4,7 @@ enum SuccessMessages {
     TaskCreated = 'Task created successfully',
     TaskUpdated = 'Task updated successfully',
     TaskDeleted = 'Task deleted successfully',
+    Pong = 'Pong',
 }
 
 export default SuccessMessages
