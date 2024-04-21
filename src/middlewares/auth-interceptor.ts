@@ -17,11 +17,9 @@ class AuthInterceptor {
                 requestId,
                 token,
             })
-
             const userId = await AuthService.authenticateUser(token, requestId)
             req.query.requestId = requestId
             req.query.userId = userId
-
             next()
         } catch (err) {
             logger.info({
