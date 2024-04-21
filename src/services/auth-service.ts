@@ -75,13 +75,11 @@ class AuthService {
             requestId,
             email,
         })
-        const { id, username, password } = await userRepository.findUserByEmail(
-            email,
-            requestId,
-        )
-        if (password !== pwd) {
+        const user = await userRepository.findUserByEmail(email, requestId)
+        if (!user || user?.password !== pwd) {
             throw new Error(ErrorMessages.InvalidCredentials)
         }
+        const { id, username, password } = user
         const accessToken = genrateJwtToken(
             {
                 username,
