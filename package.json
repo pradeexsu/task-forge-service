@@ -52,7 +52,7 @@
     },
     "dependencies": {
         "@prisma/adapter-pg": "^5.11.0",
-        "@prisma/client": "^5.10.2",
+        "@prisma/client": "^5.11.0",
         "axios": "^1.6.7",
         "builder-pattern": "^2.2.0",
         "cors": "2.8.5",
